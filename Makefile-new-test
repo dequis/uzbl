@@ -1,10 +1,10 @@
-LIBS      := gtk+-2.0 webkit-1.0
+LIBS      := gtk+-2.0 webkit-1.0 gthread-2.0 libsoup-2.4
 ARCH      := $(shell uname -m)
 COMMIT    := $(shell git log | head -n1 | sed "s/.* //")
 DEBUG     := -ggdb -Wall -W -DG_ERRORCHECK_MUTEXES
 
-CFLAGS    := $(shell --cflags $(LIBS)) $(DEBUG) -DARCH="$(ARCH)" -DCOMMIT="\"$(COMMIT)\""
-LDFLAGS   := $(shell --libs $(LIBS)) $(LDFLAGS)
+CFLAGS    := $(shell pkg-config --cflags $(LIBS)) $(DEBUG) -DARCH="\"$(ARCH)\"" -DCOMMIT="\"$(COMMIT)\"" -std=c99
+LDFLAGS   := $(shell pkg-config --libs $(LIBS)) $(LDFLAGS)
 
 PREFIX    ?= $(DESTDIR)/usr
 BINDIR    ?= $(PREFIX)/bin
@@ -17,7 +17,7 @@ all: uzbl uzblctrl
 uzbl: uzbl.c uzbl.h config.h
 
 %: %.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -o $@ $<
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $<
 
 test: uzbl
 	./uzbl --uri http://www.uzbl.org
@@ -33,17 +33,16 @@ clean:
 	rm -f uzblctrl
 
 install:
-	install -d $(BINDIR)
-	install -d $(DOCSDIR)
-	install -d $(EXMPLSDIR)
-	install -D -m755 uzbl $(BINDIR)/uzbl
-	install -D -m755 uzblctrl $(BINDIR)/uzblctrl
-	cp -ax docs/*   $(DOCSDIR)
-	cp -ax config.h $(DOCSDIR)
-	cp -ax examples/* $(EXMPLSDIR)
-	install -D -m644 AUTHORS $(DOCSDIR)
-	install -D -m644 README $(DOCSDIR)
-
+	install -d $(PREFIX)/bin
+	install -d $(PREFIX)/share/uzbl/docs
+	install -d $(PREFIX)/share/uzbl/examples
+	install -m755 uzbl $(PREFIX)/bin/uzbl
+	install -m755 uzblctrl $(PREFIX)/bin/uzblctrl
+	cp -rp docs     $(PREFIX)/share/uzbl/
+	cp -rp config.h $(PREFIX)/share/uzbl/docs/
+	cp -rp examples $(PREFIX)/share/uzbl/
+	install -m644 AUTHORS $(PREFIX)/share/uzbl/docs
+	install -m644 README  $(PREFIX)/share/uzbl/docs
 
 uninstall:
 	rm -rf $(BINDIR)/uzbl
