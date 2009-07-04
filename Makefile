@@ -1,10 +1,13 @@
 LIBS      := gtk+-2.0 webkit-1.0 gthread-2.0 libsoup-2.4
+DEBUG     := -ggdb -Wall -W -DG_ERRORCHECK_MUTEXES
+THREADS   := -lgthread-2.0 -pthread
+STD       := -std=c99
 ARCH      := $(shell uname -m)
 COMMIT    := $(shell git log | head -n1 | sed "s/.* //")
-DEBUG     := -ggdb -Wall -W -DG_ERRORCHECK_MUTEXES
+DEFINES   := -DARCH="\"$(ARCH)\"" -DCOMMIT="\"$(COMMIT)\""
 
-CFLAGS    := $(shell pkg-config --cflags $(LIBS)) $(DEBUG) -DARCH="\"$(ARCH)\"" -DCOMMIT="\"$(COMMIT)\"" -std=c99 -pthread $(CFLAGS)
-LDFLAGS   := $(shell pkg-config --libs $(LIBS))  -lgthread-2.0 $(LDFLAGS)
+CFLAGS    := $(shell pkg-config --cflags $(LIBS)) $(DEBUG) $(DEFINES) $(STD) $(THREADS) $(CFLAGS)
+LDFLAGS   := $(shell pkg-config --libs $(LIBS)) $(LDFLAGS)
 
 PREFIX    ?= $(DESTDIR)/usr
 BINDIR    ?= $(PREFIX)/bin
@@ -27,6 +30,7 @@ test-dev: uzbl
 
 test-share: uzbl
 	XDG_DATA_HOME=/usr/share/uzbl/examples/data XDG_CONFIG_HOME=/usr/share/uzbl/examples/config ./uzbl --uri http://www.uzbl.org --verbose
+
 	
 clean:
 	rm -f uzbl
