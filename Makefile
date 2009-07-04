@@ -3,7 +3,7 @@ ARCH      := $(shell uname -m)
 COMMIT    := $(shell git log | head -n1 | sed "s/.* //")
 DEBUG     := -ggdb -Wall -W -DG_ERRORCHECK_MUTEXES
 
-CFLAGS    := $(shell pkg-config --cflags $(LIBS)) $(DEBUG) -DARCH="\"$(ARCH)\"" -DCOMMIT="\"$(COMMIT)\"" -std=c99 -pthread
+CFLAGS    := $(shell pkg-config --cflags $(LIBS)) $(DEBUG) -DARCH="\"$(ARCH)\"" -DCOMMIT="\"$(COMMIT)\"" -std=c99 -pthread $(CFLAGS)
 LDFLAGS   := $(shell pkg-config --libs $(LIBS))  -lgthread-2.0 $(LDFLAGS)
 
 PREFIX    ?= $(DESTDIR)/usr
